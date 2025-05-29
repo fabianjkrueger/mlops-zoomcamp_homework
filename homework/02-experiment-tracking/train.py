@@ -27,10 +27,6 @@ from pathlib import Path
 # constants
 EXPERIMENT_NAME = "nyc-taxi-experiment"
 
-# paths
-PATH_REPO = Path(__file__).parent.parent.parent
-PATH_MLFLOW = PATH_REPO / "mlruns" # general local mlflow storage
-
 # set experiment
 mlflow.set_experiment(EXPERIMENT_NAME)
 
