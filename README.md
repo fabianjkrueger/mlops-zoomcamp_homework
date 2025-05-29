@@ -91,5 +91,9 @@ mlflow server \
 python homework/02-experiment-tracking/train_server.py \
     --data_path homework/02-experiment-tracking/output/
 
+# Run HPO script
+python homework/02-experiment-tracking/hpo.py \
+    --data_path homework/02-experiment-tracking/output/
+
 # Then access the UI at: http://localhost:5002
 ```
