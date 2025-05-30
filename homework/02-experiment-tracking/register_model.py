@@ -1,4 +1,14 @@
 """
+Load five best runs from previous HPO experiment and get hyper parameters.
+Then train models again (they were not saved because many configs were tried),
+validate on val set and test on test set, log all metrics and models.
+Determine the best one and register it with the model registry.
+
+Even though a more sophisticated model selection process is implemented here,
+this is still not about the model itself.
+This is about accessing a previous experiment, building on top of its results
+and implementing the next stage of promoting one version to the registry
+using the client.
 """
 
 # dependencies
@@ -13,10 +23,10 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import root_mean_squared_error
 
 # constants
-# experiment in which HPO was done: many models, just validated, not tested
+# previous experiment where HPO was done: many models, just validated, not tested
 # get best runs from this later, then re-train models with params and test
 HPO_EXPERIMENT_NAME = "random-forest-hyperopt"
-# this experiement: new logs and so on are written to this one
+# new experiement: new logs and so on are written to this one
 EXPERIMENT_NAME = "random-forest-best-models"
 # used to iterate through the available RF parameters
 # to enable passing from previous runs
@@ -89,7 +99,8 @@ def run_register_model(data_path: str, top_n: int):
     # create instance of mlflow client
     client = MlflowClient()
 
-    # get runs of the experiment specified in the constants section
+    # get runs of the previous HPO experiment
+    # there, best HPs were found, HPs and metrics were logged, but not model
     experiment = client.get_experiment_by_name(HPO_EXPERIMENT_NAME)
     
     # Retrieve the top_n model runs and log the models
@@ -98,23 +109,28 @@ def run_register_model(data_path: str, top_n: int):
         experiment_ids=experiment.experiment_id,
         run_view_type=ViewType.ACTIVE_ONLY,
         max_results=top_n, # number can be set, here default from click is used
-        order_by=["metrics.rmse ASC"]
+        # I capitalized "RMSE" when I logged it
+        # this is a change in comparison to the original script
+        order_by=["metrics.RMSE ASC"]
     )
     # then train again and log, this time also evaluate on test set
     for run in runs:
         train_and_log_model(data_path=data_path, params=run.data.params)
 
-    # Select the model with the lowest test RMSE
+    # Get runs of the current experiment
     experiment = client.get_experiment_by_name(EXPERIMENT_NAME)
     
-    
-    # FIXME
-    # I THINK THIS IS PRECISELY WHERE I NEED TO DO STUFF
-    
-    # best_run = client.search_runs( ...  )[0]
+    # Select the model with the lowest test RMSE
+    best_run = client.search_runs(
+        experiment_ids=experiment.experiment_id,
+        order_by=["metrics.test_rmse ASC"]
+    )[0]
 
     # Register the best model
-    # mlflow.register_model( ... )
+    mlflow.register_model(
+        model_uri=f"runs:/{best_run.info.run_id}/sklearn-model",
+        name="random-forest-best-model"
+    )
 
 
 
