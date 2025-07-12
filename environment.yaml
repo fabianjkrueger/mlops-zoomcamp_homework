@@ -3,16 +3,17 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - python
-  - pyarrow
-  - pandas
-  - numpy
-  - scikit-learn
-  - ipykernel
-  - mlflow
-  - jupyter
-  - seaborn
-  - hyperopt
-  - xgboost
   - ca-certificates
+  - hyperopt
+  - ipykernel
+  - jupyter
+  - mlflow
+  - numpy
   - openssl
+  - pandas
+  - pyarrow
+  - python=3.12
+  - scikit-learn
+  - seaborn
+  - snakemake
+  - xgboost
