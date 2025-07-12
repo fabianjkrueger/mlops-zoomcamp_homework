@@ -1,0 +1,18 @@
+name: mlops-zoomcamp
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python
+  - pyarrow
+  - pandas
+  - numpy
+  - scikit-learn
+  - ipykernel
+  - mlflow
+  - jupyter
+  - seaborn
+  - hyperopt
+  - xgboost
+  - ca-certificates
+  - openssl
