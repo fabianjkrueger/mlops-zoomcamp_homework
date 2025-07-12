@@ -1,0 +1,16 @@
+# Snakemake configuration for local Mac execution
+jobs: 2   # number of parallel jobs
+use-conda: true
+conda-frontend: mamba  # faster than conda
+keep-going: true
+printshellcmds: true
+reason: true
+
+# Resource settings
+default-resources:
+  - mem_mb=4000
+  - disk_mb=10000
+  - tmpdir="/tmp"
+
+# Conda settings
+conda-prefix: ".snakemake/conda"

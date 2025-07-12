@@ -6,3 +6,6 @@ data/*
 mlruns/*
 # server based tracking
 mlflow_server/*
+
+# snakemake
+.snakemake/

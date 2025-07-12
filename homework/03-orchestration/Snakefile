@@ -1,0 +1,8 @@
+# Configuration
+configfile: "snakemake.yaml"
+
+rule all:
+    shell:
+        """
+        echo Hello, world!
+        """
