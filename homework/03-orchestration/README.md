@@ -47,3 +47,13 @@ snakemake --cores 4 -n
 # skipping finished jobs is a *feature*, not a bug, so be cautious here
 snakemake --cores 4 -F
 ```
+
+## Original Script
+
+### `duratiotion-prediction.py`
+
+This is the original script from the MLOps Zoomcamp GitHub repository.
+
+### `download_original_script.sh`
+
+It was downloaded from [this link](https://raw.githubusercontent.com/DataTalksClub/mlops-zoomcamp/main/03-orchestration/code/duration-prediction.py) using this mini shell script.
