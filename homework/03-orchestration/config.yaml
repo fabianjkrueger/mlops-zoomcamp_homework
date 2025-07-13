@@ -1,7 +1,10 @@
-# config.yaml - Workflow parameters
-# Training data parameters
-year: 2023
-month: 1
+# config.yaml - Updated for monthly scheduling
+# Target month for prediction (we'll train on data from 2 months before this)
+target_year: 2023
+target_month: 3  # March 2023 - we want to predict for this month
+
+# Training will use: January 2023 (2 months ago)
+# Validation will use: February 2023 (1 month ago)
 
 # Paths
 results_dir: "results"
@@ -11,6 +14,6 @@ models_dir: "models"
 mlflow_tracking_uri: "http://127.0.0.1:5002"
 mlflow_experiment_name: "nyc-taxi-experiment"
 
-# Model parameters (we could move the hyperparameters here later)
+# Model parameters
 num_boost_round: 30
 early_stopping_rounds: 50

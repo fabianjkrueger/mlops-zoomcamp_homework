@@ -1,24 +1,24 @@
-# Snakefile
+# Snakefile - Updated for target month logic
 configfile: "config.yaml"
 
 # Define the final target - what we want to create
 rule all:
     input:
-        expand("{results_dir}/{year}-{month:02d}/run_id.txt", 
+        expand("{results_dir}/{target_year}-{target_month:02d}/run_id.txt", 
                results_dir=config["results_dir"],
-               year=config["year"], 
-               month=config["month"])
+               target_year=config["target_year"], 
+               target_month=config["target_month"])
 
 # Rule to download and process raw taxi data
 rule process_data:
     output:
-        train_data="{results_dir}/{year}-{month}/train_data.parquet",
-        val_data="{results_dir}/{year}-{month}/val_data.parquet"
+        train_data="{results_dir}/{target_year}-{target_month}/train_data.parquet",
+        val_data="{results_dir}/{target_year}-{target_month}/val_data.parquet"
     shell:
         """
         python scripts/process_data.py \
-            --year {wildcards.year} \
-            --month {wildcards.month} \
+            --target-year {wildcards.target_year} \
+            --target-month {wildcards.target_month} \
             --output-train {output.train_data} \
             --output-val {output.val_data}
         """
@@ -26,11 +26,11 @@ rule process_data:
 # Add after the process_data rule
 rule create_features:
     input:
-        train_data="{results_dir}/{year}-{month}/train_data.parquet",
-        val_data="{results_dir}/{year}-{month}/val_data.parquet"
+        train_data="{results_dir}/{target_year}-{target_month}/train_data.parquet",
+        val_data="{results_dir}/{target_year}-{target_month}/val_data.parquet"
     output:
-        features="{results_dir}/{year}-{month}/features.pkl",
-        vectorizer="{results_dir}/{year}-{month}/vectorizer.pkl"
+        features="{results_dir}/{target_year}-{target_month}/features.pkl",
+        vectorizer="{results_dir}/{target_year}-{target_month}/vectorizer.pkl"
     shell:
         """
         python scripts/create_features.py \
@@ -43,10 +43,10 @@ rule create_features:
 # Add after the create_features rule
 rule train_model:
     input:
-        features="{results_dir}/{year}-{month}/features.pkl",
-        vectorizer="{results_dir}/{year}-{month}/vectorizer.pkl"
+        features="{results_dir}/{target_year}-{target_month}/features.pkl",
+        vectorizer="{results_dir}/{target_year}-{target_month}/vectorizer.pkl"
     output:
-        run_id="{results_dir}/{year}-{month}/run_id.txt"
+        run_id="{results_dir}/{target_year}-{target_month}/run_id.txt"
     shell:
         """
         python scripts/train_model.py \

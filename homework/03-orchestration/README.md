@@ -46,6 +46,9 @@ snakemake --cores 4 -n
 # if you don't do this, it will skip rules that completed previously
 # skipping finished jobs is a *feature*, not a bug, so be cautious here
 snakemake --cores 4 -F
+
+# run full finished workflow (force all rules)
+snakemake --configfile snakemake.yaml --cores 1 -F
 ```
 
 ## Original Script
