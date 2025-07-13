@@ -4,8 +4,8 @@
 # this allows you to do this running just one command instead of multiple ones
 
 # export environment to a file
-# only include specifically installed packages for platform portability
-conda env export -n mlops-zoomcamp --from-history > environment.yaml
+# include both conda and pip packages for complete environment reproduction
+conda env export -n mlops-zoomcamp --no-builds > environment.yaml
 
 # remove the prefix section
 # it just shows the current local path of installation
