@@ -6,6 +6,8 @@ data/*
 mlruns/*
 # server based tracking
 mlflow_server/*
+# python cache
+__pycache__/
 
 # snakemake
 .snakemake/
