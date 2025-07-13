@@ -6,6 +6,10 @@ Original script from the MLOps Zoomcamp GitHub repository.
 The exercise is to convert this into a pipeline orchestrated by a workflow
 manager. I chose to use Snakemake for this.
 
+Here, an XGBoost model is trained and evaluated on the validation set.
+Input data is NYC green taxi trips.
+Prediction target is trip duration.
+
 I added comments to the code to make it easier to understand.
 """
 
@@ -23,16 +27,24 @@ from sklearn.metrics import root_mean_squared_error
 
 import mlflow
 
+# Paths
+# -----
+
+# construct files
+PATH_REPO = Path.cwd().parent.parent
+PATH_MODELS = PATH_REPO / "models"
+PATH_ARTIFACTS = PATH_REPO / "mlruns"
+
+# create directories if they don't exist
+PATH_MODELS.mkdir(exist_ok=True)
+PATH_ARTIFACTS.mkdir(exist_ok=True)
+
 # MLFlow configuration
 # --------------------
 
-# FIXME I may have to adapt this part to work with my particular MLFlow setup
-
-mlflow.set_tracking_uri("http://localhost:5000")
+# set tracking URI to use the centralized database in the root
+mlflow.set_tracking_uri("http://127.0.0.1:5002")
 mlflow.set_experiment("nyc-taxi-experiment")
-
-models_folder = Path('models')
-models_folder.mkdir(exist_ok=True)
 
 # Functions
 # ---------
@@ -136,6 +148,10 @@ def train_model(X_train, y_train, X_val, y_val, dv):
 
         # log the params using MLFlow
         mlflow.log_params(best_params)
+        
+        # log additional training parameters
+        mlflow.log_param("num_boost_round", 30)
+        mlflow.log_param("early_stopping_rounds", 50)
 
         # train an XGBoost model
         booster = xgb.train(
@@ -150,14 +166,22 @@ def train_model(X_train, y_train, X_val, y_val, dv):
         y_pred = booster.predict(valid)
         rmse = root_mean_squared_error(y_val, y_pred)
         mlflow.log_metric("rmse", rmse)
-        
-        # save both dv and model
-        with open("models/preprocessor.b", "wb") as f_out:
+    
+        # save preprocessor and log it as artifact
+        preprocessor_path = "dict_vectorizer.pkl"
+        with open(preprocessor_path, "wb") as f_out:
             pickle.dump(dv, f_out)
-            
-        # log dv and model
-        mlflow.log_artifact("models/preprocessor.b", artifact_path="preprocessor")
-        mlflow.xgboost.log_model(booster, artifact_path="models_mlflow")
+        mlflow.log_artifact(preprocessor_path, artifact_path="preprocessor")
+        
+        # log XGBoost model with a specific artifact path for better organization
+        mlflow.xgboost.log_model(
+            booster, 
+            artifact_path="model",
+            registered_model_name=None  # set this if you want to register the model
+        )
+        
+        # clean up temporary file
+        Path(preprocessor_path).unlink()
 
         # return run ID
         return run.info.run_id

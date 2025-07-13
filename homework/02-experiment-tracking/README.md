@@ -11,7 +11,7 @@ In the example, I am killing the process using port 5000, but this works
 for any port.
 
 ```bash
-# Find the process using port 5002
+# Find the process using port 5000
 lsof -ti:5000
 
 # Kill the process (replace PID with the number from above)
@@ -62,7 +62,7 @@ python homework/02-experiment-tracking/train.py \
 # Cautious: This blocks the terminal
 mlflow ui --backend-store-uri sqlite:///mlruns/mlflow.db --port 5001
 
-# Then access the UI at: http://localhost:5000
+# Then access the UI at: http://localhost:5001
 ```
 
 ## MLflow Setup for Using Server
@@ -82,7 +82,7 @@ mlflow server \
     --backend-store-uri sqlite:///mlflow_server/mlflow.db \
     --default-artifact-root ./mlflow_server/artifacts \
     --host 127.0.0.1 \
-    --port 5000
+    --port 5002
 
 # When the server is used, it seems not to be necessary to create the experiment
 # first. Apparently, you can just run the script with the experiment set
@@ -97,3 +97,35 @@ python homework/02-experiment-tracking/hpo.py \
 
 # Then access the UI at: http://localhost:5002
 ```
+
+## MLflow Setup for Notebooks
+
+When running MLflow code in Jupyter notebooks, you need to handle the tracking URI differently than in standalone scripts. Here's the approach:
+
+```python
+# In your notebook, set the tracking URI to use the centralized database
+import mlflow
+from pathlib import Path
+
+# Set path to root database
+PATH_REPO = Path.cwd().parent.parent  # adjust based on notebook location
+mlflow.set_tracking_uri(f"sqlite:///{PATH_REPO}/mlruns/mlflow.db")
+
+# Create experiment if it doesn't exist (only needed once)
+try:
+    mlflow.set_experiment("your-experiment-name")
+except:
+    # If experiment doesn't exist, create it first
+    mlflow.create_experiment("your-experiment-name")
+    mlflow.set_experiment("your-experiment-name")
+```
+
+**Important**: Make sure the database file exists before running notebook code. If it doesn't exist, create it properly from the terminal:
+
+```bash
+# From root directory
+export MLFLOW_TRACKING_URI="sqlite:///mlruns/mlflow.db"
+mlflow experiments create -n your-experiment-name
+```
+
+This ensures all experiments from notebooks and scripts end up in the same centralized database at `mlruns/mlflow.db`, avoiding scattered tracking data across different locations.

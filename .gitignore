@@ -9,3 +9,9 @@ mlflow_server/*
 
 # snakemake
 .snakemake/
+
+# mlflow
+mlruns/*
+
+# some file that was written in one of the homework scripts
+run_id.txt
