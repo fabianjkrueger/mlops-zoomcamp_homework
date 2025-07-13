@@ -1,0 +1,16 @@
+# config.yaml - Workflow parameters
+# Training data parameters
+year: 2023
+month: 1
+
+# Paths
+results_dir: "results"
+models_dir: "models"
+
+# MLflow configuration
+mlflow_tracking_uri: "http://127.0.0.1:5002"
+mlflow_experiment_name: "nyc-taxi-experiment"
+
+# Model parameters (we could move the hyperparameters here later)
+num_boost_round: 30
+early_stopping_rounds: 50

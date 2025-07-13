@@ -9,6 +9,7 @@ mlflow_server/*
 
 # snakemake
 .snakemake/
+*/03-orchestration/results/*
 
 # mlflow
 mlruns/*

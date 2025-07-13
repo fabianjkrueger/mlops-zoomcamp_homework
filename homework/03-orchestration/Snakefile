@@ -1,8 +1,58 @@
-# Configuration
-configfile: "snakemake.yaml"
+# Snakefile
+configfile: "config.yaml"
 
+# Define the final target - what we want to create
 rule all:
+    input:
+        expand("{results_dir}/{year}-{month:02d}/run_id.txt", 
+               results_dir=config["results_dir"],
+               year=config["year"], 
+               month=config["month"])
+
+# Rule to download and process raw taxi data
+rule process_data:
+    output:
+        train_data="{results_dir}/{year}-{month}/train_data.parquet",
+        val_data="{results_dir}/{year}-{month}/val_data.parquet"
     shell:
         """
-        echo Hello, world!
+        python scripts/process_data.py \
+            --year {wildcards.year} \
+            --month {wildcards.month} \
+            --output-train {output.train_data} \
+            --output-val {output.val_data}
+        """
+
+# Add after the process_data rule
+rule create_features:
+    input:
+        train_data="{results_dir}/{year}-{month}/train_data.parquet",
+        val_data="{results_dir}/{year}-{month}/val_data.parquet"
+    output:
+        features="{results_dir}/{year}-{month}/features.pkl",
+        vectorizer="{results_dir}/{year}-{month}/vectorizer.pkl"
+    shell:
+        """
+        python scripts/create_features.py \
+            --train-data {input.train_data} \
+            --val-data {input.val_data} \
+            --output-features {output.features} \
+            --output-vectorizer {output.vectorizer}
+        """
+
+# Add after the create_features rule
+rule train_model:
+    input:
+        features="{results_dir}/{year}-{month}/features.pkl",
+        vectorizer="{results_dir}/{year}-{month}/vectorizer.pkl"
+    output:
+        run_id="{results_dir}/{year}-{month}/run_id.txt"
+    shell:
+        """
+        python scripts/train_model.py \
+            --features {input.features} \
+            --vectorizer {input.vectorizer} \
+            --output-run-id {output.run_id} \
+            --mlflow-uri {config[mlflow_tracking_uri]} \
+            --experiment-name {config[mlflow_experiment_name]}
         """

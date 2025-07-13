@@ -229,11 +229,16 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train a model to predict taxi trip duration.')
     parser.add_argument('--year', type=int, required=True, help='Year of the data to train on')
     parser.add_argument('--month', type=int, required=True, help='Month of the data to train on')
+    parser.add_argument('--output-path', type=str, default="run_id.txt", 
+                       help='Path where to save the run ID file')
     args = parser.parse_args()
 
     # run the main wrapper function for the entire pipeline
     run_id = run(year=args.year, month=args.month)
 
-    # write the run ID to a text file `run_id.txt`
-    with open("run_id.txt", "w") as f:
+    # write the run ID to the specified output path
+    output_path = Path(args.output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)  # create directories if needed
+    
+    with open(output_path, "w") as f:
         f.write(run_id)
