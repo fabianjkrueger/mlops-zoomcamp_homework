@@ -3,9 +3,6 @@
 # to enable working from different machines
 # this allows you to do this running just one command instead of multiple ones
 
-# make sure the correct environment is activated
-
-
 # export environment to a file
 # only include specifically installed packages for platform portability
 conda env export -n mlops-zoomcamp --from-history > environment.yaml
